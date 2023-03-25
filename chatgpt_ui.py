@@ -1,13 +1,5 @@
 from tkinter import *
-import openai
-
-from dotenv import dotenv_values
-
-config = dotenv_values(".env")
-openai.api_key = config["API_KEY"]
-
-# define the model and the prompt
-model_engine = "text-davinci-002"
+from chatgpt_backend import execute_prompt
 
 
 def update_human_textbox_height(human_chat_frame, new_height):
@@ -20,42 +12,6 @@ def update_ai_textbox_height(ai_chat_frame, new_height):
     ai_chat_frame.configure(height=new_height)
     enable_scroll.counter += new_height
     conversation_frame.configure(height=conversation_frame.winfo_height() + new_height)
-
-
-def execute_prompt():
-    prompt = f"{execute_prompt.prompt}\t{message_box_txt.get()}"
-    print(prompt)
-    execute_prompt.prompt = prompt
-
-    # generate text
-    completions = openai.Completion.create(
-        engine=model_engine,
-        prompt=prompt,
-        max_tokens=1024,
-        n=1,
-        stop=None,
-        temperature=0.5,
-    )
-    execute_prompt.response = completions.choices[0].text
-    response = execute_prompt.response
-
-    human_chat_frame = Frame(conversation_frame, bg="#343541", width=1200, height=70)
-    human_chat_frame.pack(side="top", fill="both", expand=True)
-    Label(human_chat_frame, image=human_user_icon, bg="#343541").place(x=140, y=17)
-    lb = Label(human_chat_frame, text=f"{message_box_txt.get()}", pady=20, bg="#343541", font=font, fg="white",
-               wraplength=800, justify=LEFT)
-    lb.place(x=190, y=0)
-    root.after(100, lambda: update_human_textbox_height(human_chat_frame, lb.winfo_height()))
-
-    ai_chat_frame = Frame(conversation_frame, bg="#444654", width=1200, height=70)
-    ai_chat_frame.pack(side="top", fill="both", expand=True)
-    Label(ai_chat_frame, image=ai_user_icon, bg="#444654").place(x=140, y=17)
-    lb1 = Label(ai_chat_frame, text=f"{response}", pady=20, bg="#444654", font=font, fg="white",
-                wraplength=800, justify=LEFT)
-    lb1.place(x=190, y=0)
-    root.after(120, lambda: update_ai_textbox_height(ai_chat_frame, lb1.winfo_height()))
-    chatgpt_description_lbl.destroy()
-    message_box_txt.delete(0, END)
 
 
 def on_mousewheel(event):
@@ -71,6 +27,28 @@ def disable_scroll():
     enable_scroll.allowScroll = False
 
 
+def display_response(response):
+    print(response)
+    human_chat_frame = Frame(conversation_frame, bg="#343541", width=1200, height=70)
+    human_chat_frame.pack(side="top", fill="both", expand=True)
+    Label(human_chat_frame, image=human_user_icon, bg="#343541").place(x=140, y=17)
+    lb = Label(human_chat_frame, text=f"{message_box_txt.get()}", pady=20, bg="#343541", font=font, fg="white",
+               wraplength=800, justify=LEFT)
+    lb.place(x=190, y=0)
+    root.after(100, lambda: update_human_textbox_height(human_chat_frame, lb.winfo_height()))
+
+    ai_chat_frame = Frame(conversation_frame, bg="#444654", width=1200, height=70)
+    ai_chat_frame.pack(side="top", fill="both", expand=True)
+    Label(ai_chat_frame, image=ai_user_icon, bg="#444654").place(x=140, y=17)
+    lb1 = Label(ai_chat_frame, text=f"{response['response']}", pady=20, bg="#444654", font=font, fg="white",
+                wraplength=800, justify=LEFT)
+    lb1.place(x=190, y=0)
+    root.after(120, lambda: update_ai_textbox_height(ai_chat_frame, lb1.winfo_height()))
+    chatgpt_description_lbl.destroy()
+    message_box_txt.delete(0, END)
+
+
+
 root = Tk()
 root.title("ChatGPT")
 photo = PhotoImage(file='images/chatgpt/chatgpt-icon.png')
@@ -80,8 +58,6 @@ height = 735
 
 enable_scroll.allowScroll = False
 enable_scroll.counter = 0
-execute_prompt.response = ""
-execute_prompt.prompt = ""
 
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
@@ -131,12 +107,12 @@ b3.place(x=456, y=644, width=768, height=50)
 send_message_img = PhotoImage(file=f"images/chatgpt/send-message.png")
 send_message_lbl = Label(image=send_message_img, borderwidth=0, highlightthickness=0, relief="flat", bd=0, bg="#40414F")
 
-send_message_lbl.bind("<Button-1>", lambda e: execute_prompt())
+send_message_lbl.bind("<Button-1>", lambda e: execute_prompt(message_box_txt.get(), display_response))
 send_message_lbl.place(x=1195, y=661)
 
 message_box_txt = Entry(bg="#40414F", bd=0, relief="flat", fg="#FFFFFF", font=font)
 message_box_txt.configure(insertbackground="white")
-message_box_txt.bind("<Return>", lambda e: execute_prompt())
+message_box_txt.bind("<Return>", lambda e: execute_prompt(message_box_txt.get(), display_response))
 message_box_txt.place(x=456 + 10, y=644 + 10, width=768 - 50, height=50 - 20)
 
 new_thread_img = PhotoImage(file=f"images/chatgpt/new thread.png")
