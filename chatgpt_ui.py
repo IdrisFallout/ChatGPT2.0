@@ -17,6 +17,9 @@ def update_ai_textbox_height(ai_chat_frame, new_height):
 def on_mousewheel(event):
     if enable_scroll.allowScroll:
         canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        conversation_frame.update_idletasks()
+        canvas.configure(scrollregion=conversation_frame.bbox("all"))
+        canvas.yview_moveto(1.0)
 
 
 def enable_scroll():
@@ -28,11 +31,11 @@ def disable_scroll():
 
 
 def display_response(response):
-    print(response)
+    message_box_txt.delete(0, END)
     human_chat_frame = Frame(conversation_frame, bg="#343541", width=1200, height=70)
     human_chat_frame.pack(side="top", fill="both", expand=True)
     Label(human_chat_frame, image=human_user_icon, bg="#343541").place(x=140, y=17)
-    lb = Label(human_chat_frame, text=f"{message_box_txt.get()}", pady=20, bg="#343541", font=font, fg="white",
+    lb = Label(human_chat_frame, text=f"{response['prompt']}", pady=20, bg="#343541", font=font, fg="white",
                wraplength=800, justify=LEFT)
     lb.place(x=190, y=0)
     root.after(100, lambda: update_human_textbox_height(human_chat_frame, lb.winfo_height()))

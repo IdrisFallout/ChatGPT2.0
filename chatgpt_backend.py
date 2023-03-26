@@ -1,11 +1,12 @@
+import os
 import openai
-import json
 import threading
 
 from dotenv import dotenv_values
 
 config = dotenv_values(".env")
-openai.api_key = config["API_KEY"]
+# openai.api_key = config["API_KEY"]
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # define the model and the prompt
 model_engine = "text-davinci-002"
