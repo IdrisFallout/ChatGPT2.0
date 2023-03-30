@@ -1,4 +1,3 @@
 .env
 .idea
 api_context.py
-scroller.py
