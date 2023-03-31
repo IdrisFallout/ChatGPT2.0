@@ -7,4 +7,4 @@ Replace enter your api key with your openai api key from [here][openai].
 `API_KEY=write_api_key_here`
 
 
-[openai]: https://beta.openai.com/account/api-keys
+[openai]: https://beta.openai.com/account/api-keys/
